@@ -39,9 +39,11 @@ function HostDestroyDelivery(net)
 	SetEntityAsMissionEntity(ped, false, true)
 	DeletePed(ped)
 
-	UTILS.DestroyObject(case)
+	SetEntityAsMissionEntity(case, false, true)
+	DeleteObject(case)
 
-	UTILS.DestroyVehicle(vehicle)
+	SetEntityAsMissionEntity(vehicle, false, true)
+	DeleteVehicle(vehicle)
 end
 
 RegisterNetEvent("HostDestroyDelivery")
@@ -95,7 +97,7 @@ function HostCreateDelivery(props)
 	local pedModel = props.pedModel or GetHashKey("s_m_m_armoured_01")
 	local vehicleNet = ObjToNet(vehicle)
 
-	Citizen.InvokeNative --[[SetVehicleOnGroudProperly]](0x49733E92263139D1, vehicle, 1084227584)
+	SetVehicleOnGroundProperly(vehicle)
 	SetVehicleProvidesCover(vehicle, true)
 	SetVehicleCreatesMoneyPickupsWhenExploded(vehicle, 0)
 	SetVehicleEngineOn(vehicle, true, true, 0)
@@ -107,7 +109,7 @@ function HostCreateDelivery(props)
 	SetEntityProofs(case, false, true, true, true, true, true, 0, false) -- not bullet proof ?
 	SetEntityNoCollisionEntity(case, vehicle, 0)
 	SetVehicleAutomaticallyAttaches(vehicle, false, 0)
-	Citizen.InvokeNative --[[SetEntityLoadCollisionFlag]](0x0DC7CABAB1E9B67E, vehicle, true, 1)
+	Citizen.InvokeNative --[[SetEntityLoadCollisionFlag]](0x0DC7CABAB1E9B67E, vehicle, true, 1) -- no idea why the 1 is at the end but works either way
 
 	--VEHICLE::SET_VEHICLE_DOORS_LOCKED(vehicle, 3);
 
