@@ -27,7 +27,7 @@ AddEventHandler(
 
 function BlowDoors (netid)
 	local settings = vehicles[netid]
-	local ped = NetToObj(settings.case)
+	local ped = NetToObj(settings.ped)
 	local vehicle = NetToObj(settings.vehicle)
 	local case = NetToObj(settings.case)
 
@@ -163,6 +163,17 @@ function HostCreateDelivery(props)
 		}
 	)
 end
+local genericATMCoords = vector3(2958.98, 487.31, 14.48)
+function WalktoATM()
+	local ped = NetToObj(settings.ped)
+	local vehicle = NetToObj(settings.vehicle)
+	local currentATM = GetClosestObjectOfType(genericATMCoords, 5.0, GetHashKey("prop_atm_03"), false, false, false)
+	TaskLeaveVehicle(ped, vehicle, 0)
+	while IsPedInAnyVehicle(ped, true) do
+		Wait(0)
+	end
+	walkCoords = GetOffsetFromEntityInWorldCoords(currentATM, 0.0, -1.5, 0.0)
+end
 
 Citizen.CreateThread(
 	function()
@@ -182,6 +193,7 @@ Citizen.CreateThread(
 						ClearPedAlternateWalkAnim(ped, -1056964608)
 						ClearPedTasks(ped)
 						BlowDoors(settings.vehicle)
+						WalktoATM()
 					end
 				else
 					if arrived then
