@@ -1,6 +1,14 @@
 local UTILS
 local vehicles = {}
 
+function LoadAnimationDictionary(dictionary)
+	while(not HasAnimDictLoaded(dictionary)) do
+		RequestAnimDict(dictionary)
+		Citizen.Wait(0)
+	end
+end
+
+
 RegisterNetEvent("onDeliveryCreated")
 AddEventHandler(
 	"onDeliveryCreated",
@@ -24,10 +32,9 @@ AddEventHandler(
 	end
 )
 
-
 function BlowDoors (netid)
 	local settings = vehicles[netid]
-	local ped = NetToObj(settings.case)
+	local ped = NetToObj(settings.ped)
 	local vehicle = NetToObj(settings.vehicle)
 	local case = NetToObj(settings.case)
 
@@ -38,8 +45,7 @@ function BlowDoors (netid)
 	SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(case, 1)
 	-- do somethng ..
 
-	ApplyForceToEntity(case, 1, 0.0, 1.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1);
-
+	ApplyForceToEntity(case, 1, 0.0, -10.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
 	SetVehicleDoorOpen(vehicle, 2, 0, 0)
 	SetVehicleDoorOpen(vehicle, 3, 0, 0)
 end
@@ -175,14 +181,52 @@ Citizen.CreateThread(
 				local vehicle = NetToObj(settings.vehicle)
 				local ped = NetToObj(settings.ped)
 				local pathing = GetIsTaskActive(ped, 169)
+				local case = NetToObj(settings.case)
 
 				if not pathing then
 					if not arrived then
 						arrived = true
 						print("Arrived at dest")
-						ClearPedAlternateWalkAnim(ped, -1056964608)
+						Wait(100)
+						-- ClearPedAlternateWalkAnim(ped, -1056964608)
 						ClearPedTasks(ped)
+						TaskLeaveVehicle(ped, vehicle, 1)
+
+
+						local coords = GetEntityCoords(vehicle)
+						local atm = GetClosestObjectOfType(
+							coords.x,
+							coords.y,
+							coords.z,
+							35.0,
+							-1364697528, false
+						)
+						LoadAnimationDictionary("pickup_object")
+						Wait(1000)
+
+						print('NEAREST ATM', atm, ped)
+
+						ClearPedTasks(ped)
+
+						local backof = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -3.5, 0.0)
+						TaskGoToCoordAnyMeans(ped, backof, 1.0, 0, 0, 786603, 0xbf800000)
+						SetPedKeepTask(ped, true)
+
+						-- Fixme
+						Wait(8000)
 						BlowDoors(settings.vehicle)
+						ClearPedTasks(ped)
+						TaskAchieveHeading(ped, GetEntityHeading(vehicle), 1500)
+
+
+						Wait(1500)
+						ClearPedTasks(ped) --
+						TaskPlayAnim(ped, "pickup_object", "putdown_low", 8.0, 1.0, 300, 120, 0, 0, 0, 1)
+
+						Wait(300)
+						AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1, 0, 0, 0, 2, 1)
+						ClearPedTasks(ped)
+						TaskGoToEntity(ped, atm, -1, 1.0, 1.0, 1073741824.0, 0)
 					end
 				else
 					if arrived then
