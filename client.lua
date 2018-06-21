@@ -115,7 +115,10 @@ function HostCreateDelivery(props)
 
 	print("Case attached", IsEntityAttached(case) == 1)
 
-	UTILS.LoadModel(pedModel)
+	RequestModel(GetHashKey(pedModel))
+	while not HasModelLoaded(GetHashKey(pedModel)) do
+		Wait(0)
+	end
 
 	local ped = CreatePedInsideVehicle(vehicle, 1, pedModel, -1, true, false)
 	local pedNet = PedToNet(ped)
