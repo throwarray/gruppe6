@@ -24,6 +24,26 @@ AddEventHandler(
 	end
 )
 
+
+function BlowDoors (netid)
+	local settings = vehicles[netid]
+	local ped = NetToObj(settings.case)
+	local vehicle = NetToObj(settings.vehicle)
+	local case = NetToObj(settings.case)
+
+	PlaySoundFromCoord(GetSoundId(), "DOORS_BLOWN", GetWorldPositionOfEntityBone(vehicle, 13), "RE_SECURITY_VAN_SOUNDSET", 0, 0, 0);
+	DetachEntity(case, 1, false) -- ?
+	SetEntityCollision(case, true, 0)
+	ActivatePhysics(case)
+	SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(case, 1)
+	-- do somethng ..
+
+	ApplyForceToEntity(case, 1, 0.0, 1.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1);
+
+	SetVehicleDoorOpen(vehicle, 2, 0, 0)
+	SetVehicleDoorOpen(vehicle, 3, 0, 0)
+end
+
 -- Destroy the delivery
 function HostDestroyDelivery(net)
 	if vehicles[net] == nil then
@@ -151,21 +171,18 @@ Citizen.CreateThread(
 
 		while true do
 			Wait(0)
-			for k, v in pairs(vehicles) do
-				local vehicle = NetToObj(k)
-				local ped = GetPedInVehicleSeat(vehicle, -1)
+			for netid, settings in pairs(vehicles) do
+				local vehicle = NetToObj(settings.vehicle)
+				local ped = NetToObj(settings.ped)
 				local pathing = GetIsTaskActive(ped, 169)
 
 				if not pathing then
 					if not arrived then
 						arrived = true
 						print("Arrived at dest")
-
 						ClearPedAlternateWalkAnim(ped, -1056964608)
 						ClearPedTasks(ped)
-
-						SetVehicleDoorOpen(vehicle, 2, 0, 0)
-						SetVehicleDoorOpen(vehicle, 3, 0, 0)
+						BlowDoors(settings.vehicle)
 					end
 				else
 					if arrived then
@@ -185,13 +202,21 @@ TriggerEvent(
 			function()
 				local dest = GetEntityCoords(PlayerPedId())
 				HostCreateDelivery(
-					{
-						vehicleModel = GetHashKey("stockade"),
-						pedModel = GetHashKey("s_m_m_armoured_01"),
-						coords = {x = -221.50, y = 6517.67, z = 11.03},
-						dest = {x = dest.x, y = dest.y, z = dest.z},
-						heading = 131.0
-					}
+				{
+					vehicleModel = GetHashKey("stockade"),
+					pedModel = GetHashKey("s_m_m_armoured_01"),
+					coords = {
+						z = 18.354583740234,
+						y = 576.20074462891,
+						x = -3002.3640136719,
+					},
+					dest = {
+						z = 15.318591117859,
+						y = 494.56683349609,
+						x = -2955.2749023438,
+					},
+					heading = 186.20767211914
+				}
 				)
 			end
 		)
