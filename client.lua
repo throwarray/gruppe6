@@ -31,7 +31,7 @@ function BlowDoors (netid)
 	local vehicle = NetToObj(settings.vehicle)
 	local case = NetToObj(settings.case)
 
-	PlaySoundFromCoord(GetSoundId(), "DOORS_BLOWN", GetWorldPositionOfEntityBone(vehicle, 13), "RE_SECURITY_VAN_SOUNDSET", 0, 0, 0);
+	PlaySoundFromCoord(-1, "DOORS_BLOWN", GetWorldPositionOfEntityBone(vehicle, 13), "RE_SECURITY_VAN_SOUNDSET", 0, 0, 0);
 	DetachEntity(case, 1, false) -- ?
 	SetEntityCollision(case, true, 0)
 	ActivatePhysics(case)
@@ -119,7 +119,6 @@ function HostCreateDelivery(props)
 
 	SetVehicleOnGroundProperly(vehicle)
 	SetVehicleProvidesCover(vehicle, true)
-	SetVehicleCreatesMoneyPickupsWhenExploded(vehicle, 0)
 	SetVehicleEngineOn(vehicle, true, true, 0)
 
 	local case = UTILS.SpawnObject("prop_security_case_01", coords, true, true, false)
