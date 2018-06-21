@@ -115,8 +115,8 @@ function HostCreateDelivery(props)
 
 	print("Case attached", IsEntityAttached(case) == 1)
 
-	RequestModel(GetHashKey(pedModel))
-	while not HasModelLoaded(GetHashKey(pedModel)) do
+	RequestModel(pedModel)
+	while not HasModelLoaded(pedModel) do
 		Wait(0)
 	end
 
