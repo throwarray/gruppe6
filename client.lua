@@ -38,7 +38,7 @@ function BlowDoors (netid)
 	SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(case, 1)
 	-- do somethng ..
 
-	ApplyForceToEntity(case, 1, 0.0, 1.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1);
+	ApplyForceToEntity(case, 1, 0.0, -10.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
 
 	SetVehicleDoorOpen(vehicle, 2, 0, 0)
 	SetVehicleDoorOpen(vehicle, 3, 0, 0)
