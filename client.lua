@@ -200,7 +200,6 @@ Citizen.CreateThread(
 
 						-- ClearPedAlternateWalkAnim(ped, -1056964608)
 						ClearPedTasks(ped)
-						TaskLeaveVehicle(ped, vehicle, 1)
 						TaskLeaveVehicle(ped, vehicle, 0)
 						while IsPedInAnyVehicle(ped, true) do
 							Wait(0)
@@ -227,17 +226,17 @@ Citizen.CreateThread(
 						SetPedKeepTask(ped, true)
 
 						-- Fixme
-						Wait(8000)
+						Wait(6000)
 						BlowDoors(settings.vehicle)
 						ClearPedTasks(ped)
 						TaskAchieveHeading(ped, GetEntityHeading(vehicle), 1500)
 
-						Wait(1500)
+						Wait(500)
 						ClearPedTasks(ped) --
-						TaskPlayAnim(ped, "pickup_object", "putdown_low", 8.0, 1.0, 300, 120, 0, 0, 0, 1)
+						TaskPlayAnim(ped, "pickup_object", "pickup_low", 8.0, 1.0, 300, 120, 0, 0, 0, 1)
 
 						Wait(300)
-						AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1, 0, 0, 0, 2, 1)
+						AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.1, 0.0, -0.03, -90.0, 0.0, 90.0, 1, 0, 0, true, 2, true) -- close enough
 						ClearPedTasks(ped)
 						TaskGoToEntity(ped, atm, -1, 1.0, 1.0, 1073741824.0, 0)
 					end
