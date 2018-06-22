@@ -2,12 +2,11 @@ local UTILS
 local vehicles = {}
 
 function LoadAnimationDictionary(dictionary)
-	while(not HasAnimDictLoaded(dictionary)) do
+	while not HasAnimDictLoaded(dictionary) do
 		RequestAnimDict(dictionary)
 		Citizen.Wait(0)
 	end
 end
-
 
 RegisterNetEvent("onDeliveryCreated")
 AddEventHandler(
