@@ -239,6 +239,8 @@ Citizen.CreateThread(
 						AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.1, 0.0, -0.03, -90.0, 0.0, 90.0, 1, 0, 0, true, 2, true) -- close enough
 						ClearPedTasks(ped)
 						TaskGoToEntity(ped, atm, -1, 1.0, 1.0, 1073741824.0, 0)
+
+						Wait(6000)
 					end
 				else
 					if arrived then
