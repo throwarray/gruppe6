@@ -212,7 +212,7 @@ Citizen.CreateThread(
 							coords.y,
 							coords.z,
 							35.0,
-							-1364697528, false
+							-1364697528, false -- can we start using actual model names? this doesn't even seem like an ATM prop hash according to odb
 						)
 
 						LoadAnimationDictionary("pickup_object")
