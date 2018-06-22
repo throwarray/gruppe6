@@ -260,7 +260,29 @@ Citizen.CreateThread(
 						-- Fill the machine --[[CODE_HUMAN_MEDIC_KNEEL]]
 						ClearPedTasks(ped)
 						TaskStartScenarioAtPosition(ped, "PROP_HUMAN_PARKING_METER", GetOffsetFromEntityInWorldCoords(atm, 0.0, -1.0, 1.0), GetEntityHeading(atm), 0, true, true)
+						Wait(5000)
 
+						-- Go to back of vehicle
+						ClearPedTasks(ped)
+						ClearPedTasksImmediately(ped)
+						TaskGoToCoordAnyMeans(ped, GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -3.5, 0.0), 1.0, 0, 0, 786603, 0xbf800000)
+						SetPedKeepTask(ped, true)
+						AwaitTask(ped, 224)
+
+						-- Achieve heading
+						ClearPedTasks(ped)
+						TaskAchieveHeading(ped, GetEntityHeading(vehicle), 1500)
+						AwaitTask(ped, 35) -- CTaskComplexControlMovement
+
+						DetachEntity(case, 1, false)
+						SetVehicleDoorShut(vehicle, 2, 0, 0)
+						SetVehicleDoorShut(vehicle, 3, 0, 0)
+						AttachEntityToEntity(case, vehicle, 0, 0.0, -2.4589, 1.2195, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, 1)
+						Wait(500)
+
+						-- Enter vehicle
+						ClearPedTasks(ped)
+						TaskEnterVehicle(ped, vehicle, -1, -1, 1.0, 1, 0)
 					end
 				else
 					if arrived then
