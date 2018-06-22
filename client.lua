@@ -1,12 +1,6 @@
 local UTILS
 local vehicles = {}
 
-function LoadAnimationDictionary(dictionary)
-	while not HasAnimDictLoaded(dictionary) do
-		RequestAnimDict(dictionary)
-		Citizen.Wait(0)
-	end
-end
 
 RegisterNetEvent("onDeliveryCreated")
 AddEventHandler(
@@ -31,7 +25,7 @@ AddEventHandler(
 	end
 )
 
-function BlowDoors (netid)
+function BlowDoors (netid, eject)
 	local settings = vehicles[netid]
 	local ped = NetToObj(settings.ped)
 	local vehicle = NetToObj(settings.vehicle)
@@ -44,7 +38,10 @@ function BlowDoors (netid)
 	SetActivateObjectPhysicsAsSoonAsItIsUnfrozen(case, 1)
 	-- do somethng ..
 
-	ApplyForceToEntity(case, 1, 0.0, -10.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
+	if eject then
+		ApplyForceToEntity(case, 1, 0.0, -10.0, 5.0, 0.0, 0.0, 0.0, 0, 1, 1, 1, 0, 1)
+	end
+
 	SetVehicleDoorOpen(vehicle, 2, 0, 0)
 	SetVehicleDoorOpen(vehicle, 3, 0, 0)
 end
@@ -103,8 +100,8 @@ function SecurityGuard(ped)
 
 	SetRelationshipBetweenGroups(1, GetHashKey("COP"), security_group) -- Respect
 	SetRelationshipBetweenGroups(1, security_group, GetHashKey("COP")) -- Respect
-	SetRelationshipBetweenGroups(2, security_group, GetHashKey("PLAYER")) -- Like
-	SetRelationshipBetweenGroups(2, GetHashKey("PLAYER"), security_group) -- Like
+	-- SetRelationshipBetweenGroups(2, security_group, GetHashKey("PLAYER")) -- Like
+	-- SetRelationshipBetweenGroups(2, GetHashKey("PLAYER"), security_group) -- Like
 end
 
 function HostCreateDelivery(props)
