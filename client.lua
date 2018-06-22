@@ -178,6 +178,31 @@ end
 -- 	walkCoords = GetOffsetFromEntityInWorldCoords(currentATM, 0.0, -1.5, 0.0)
 -- end
 
+
+local AwaitTask = function (ped, id)
+	Wait(17)
+	while GetIsTaskActive(ped, id) do Wait(0) end
+end
+
+function GetActivePedTasks (ped, setclipboard)
+	local activeTasks = {}
+
+	for i = 0, 528, 1 do
+		if GetIsTaskActive(ped, i) then
+			activeTasks[i] = true
+		end
+	end
+
+	if setclipboard then exports.clipboard:SetClipboard(activeTasks, function (err)
+		if not err then
+			print('clipboard set')
+		end
+	end) end
+
+	return activeTasks
+end
+
+
 Citizen.CreateThread(
 	function()
 		local arrived = false
@@ -198,46 +223,44 @@ Citizen.CreateThread(
 						-- ClearPedAlternateWalkAnim(ped, -1056964608)
 						ClearPedTasks(ped)
 						TaskLeaveVehicle(ped, vehicle, 0)
-						while IsPedInAnyVehicle(ped, true) do
-							Wait(0)
-						end
+						while IsPedInAnyVehicle(ped, true) do Wait(0) end
 
-						local coords = GetEntityCoords(vehicle)
 						local atm = GetClosestObjectOfType(
-							coords.x,
-							coords.y,
-							coords.z,
-							35.0,
-							-1364697528, false -- can we start using actual model names? this doesn't even seem like an ATM prop hash according to odb
+							GetEntityCoords(vehicle), 35.0,
+							--[[-1364697528]] GetHashKey('prop_atm_03'), false
 						)
 
-						LoadAnimationDictionary("pickup_object")
 						Wait(1000)
 
-						print('NEAREST ATM', atm, ped)
-
+						-- Go to back of vehicle
 						ClearPedTasks(ped)
-
-						local backof = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -3.5, 0.0)
-						TaskGoToCoordAnyMeans(ped, backof, 1.0, 0, 0, 786603, 0xbf800000)
+						TaskGoToCoordAnyMeans(ped, GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -3.5, 0.0), 1.0, 0, 0, 786603, 0xbf800000)
 						SetPedKeepTask(ped, true)
+						AwaitTask(ped, 224)
 
-						-- Fixme
-						Wait(6000)
-						BlowDoors(settings.vehicle)
+						-- Achieve heading
 						ClearPedTasks(ped)
 						TaskAchieveHeading(ped, GetEntityHeading(vehicle), 1500)
+						AwaitTask(ped, 35) -- CTaskComplexControlMovement
 
-						Wait(500)
-						ClearPedTasks(ped) --
-						TaskPlayAnim(ped, "pickup_object", "pickup_low", 8.0, 1.0, 300, 120, 0, 0, 0, 1)
-
-						Wait(300)
-						AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.1, 0.0, -0.03, -90.0, 0.0, 90.0, 1, 0, 0, true, 2, true) -- close enough
+						-- Open doors and grab case
 						ClearPedTasks(ped)
-						TaskGoToEntity(ped, atm, -1, 1.0, 1.0, 1073741824.0, 0)
+						TaskStartScenarioAtPosition(ped, "PROP_HUMAN_ATM", GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -4.5, 1.0), GetEntityHeading(vehicle), 0, true, true)
+						Wait(300)
+						BlowDoors(settings.vehicle)
+						Wait(500)
+						AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.1, 0.0, -0.03, -90.0, 0.0, 90.0, 1, 0, 0, true, 2, true) -- close enough
 
-						Wait(6000)
+						-- Go to ATM
+						ClearPedTasks(ped)
+						ClearPedTasksImmediately(ped)
+						TaskGoToEntity(ped, atm, -1, 1.0, 1.0, 1073741824.0, 0)
+						AwaitTask(ped, 35) -- CTaskComplexControlMovement
+
+						-- Fill the machine --[[CODE_HUMAN_MEDIC_KNEEL]]
+						ClearPedTasks(ped)
+						TaskStartScenarioAtPosition(ped, "PROP_HUMAN_PARKING_METER", GetOffsetFromEntityInWorldCoords(atm, 0.0, -1.0, 1.0), GetEntityHeading(atm), 0, true, true)
+
 					end
 				else
 					if arrived then
