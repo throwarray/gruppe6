@@ -161,18 +161,6 @@ function SecurityGuard (ped)
 	return ped
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
 function HostCreateDelivery(props)
 	local dest = props.dest or GetEntityCoords(PlayerPedId())
 	local coords = props.coords or GetEntityCoords(PlayerPedId())
