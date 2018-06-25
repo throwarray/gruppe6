@@ -6,7 +6,6 @@ RegisterNetEvent("onDeliveryCreated")
 AddEventHandler("onDeliveryCreated", function(net, vehs)
 	-- Store latest table of net ids
 	vehicles = vehs
-
 	-- A new vehicle was created
 	if net > 0 then
 		local data = vehs[net]
@@ -26,6 +25,9 @@ AddEventHandler("onDeliveryCreated", function(net, vehs)
 
 		print('Delivery vehicle created: ', vehicle, net)
 	end
+
+	Main(vehicles)
+
 end)
 
 
@@ -237,88 +239,90 @@ RegisterCommand('fleeca', function ()
 	GiveWeaponToPed(ped, GetHashKey("weapon_pistol"), -1, false, true)
 end)
 
-Citizen.CreateThread(
-	function()
-		local arrived = false -- TODO FIX THIS (DECORATORS AND HOST ONLY)
+function Main(vehicles)
+	Citizen.CreateThread(
+		function()
+			local arrived = false -- TODO FIX THIS (DECORATORS AND HOST ONLY)
 
-		while true do
-			Wait(0)
-			for netid, settings in pairs(vehicles) do
-				local vehicle = NetToObj(settings.vehicle)
-				local ped = NetToObj(settings.ped)
-				local pathing = GetIsTaskActive(ped, 169)
-				local case = NetToObj(settings.case)
+			while true do
+				Wait(0)
+				for netid, settings in pairs(vehicles) do
+					local vehicle = NetToObj(settings.vehicle)
+					local ped = NetToObj(settings.ped)
+					local pathing = GetIsTaskActive(ped, 169)
+					local case = NetToObj(settings.case)
 
-				if not pathing then
-					if not arrived then
-						arrived = true
-						print("Arrived at dest")
-						ClearPedTasks(ped)
-						Wait(1000)
+					if not pathing then
+						if not arrived then
+							arrived = true
+							print("Arrived at dest")
+							ClearPedTasks(ped)
+							Wait(1000)
 
-						-- ClearPedAlternateWalkAnim(ped, -1056964608)
-						local atm = GetClosestObjectOfType(GetEntityCoords(vehicle), 35.0, --[[-1364697528]] GetHashKey('prop_atm_03'), false)
+							-- ClearPedAlternateWalkAnim(ped, -1056964608)
+							local atm = GetClosestObjectOfType(GetEntityCoords(vehicle), 35.0, --[[-1364697528]] GetHashKey('prop_atm_03'), false)
 
-						-- Go to back of vehicle and wait for sequence to stop
-						GoToBackOfVehicle(ped, vehicle)
-						Sequence(ped, function (cv, lv)
-							if cv == 5 and lv ~= cv then
-								print('Attaching case')
-								AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.1, 0.0, -0.03, -90.0, 0.0, 90.0, 1, 0, 0, true, 2, true) -- close enough
-							end
-						end, function (cv, lv)
-							print('DONE?', cv, lv)
-							-- Sequence ended
-							if lv == 5 then
-								print('Arrived at back of vehicle')
-								-- TaskStartScenarioAtPosition(ped, "PROP_HUMAN_ATM", GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -4.5, 0.4), GetEntityHeading(vehicle), 1000, true, true)
-								-- Wait(300)
-								--OpenBackOfVehicle(ped, vehicle, case)
-								--Wait(800)
+							-- Go to back of vehicle and wait for sequence to stop
+							GoToBackOfVehicle(ped, vehicle)
+							Sequence(ped, function (cv, lv)
+								if cv == 5 and lv ~= cv then
+									print('Attaching case')
+									AttachEntityToEntity(case, ped, GetPedBoneIndex(ped, 28422), 0.1, 0.0, -0.03, -90.0, 0.0, 90.0, 1, 0, 0, true, 2, true) -- close enough
+								end
+							end, function (cv, lv)
+								print('DONE?', cv, lv)
+								-- Sequence ended
+								if lv == 5 then
+									print('Arrived at back of vehicle')
+									-- TaskStartScenarioAtPosition(ped, "PROP_HUMAN_ATM", GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -4.5, 0.4), GetEntityHeading(vehicle), 1000, true, true)
+									-- Wait(300)
+									--OpenBackOfVehicle(ped, vehicle, case)
+									--Wait(800)
 
 
-								-- Open doors and grab case
-								ClearPedTasks(ped)
-								ClearPedTasksImmediately(ped)
-								GoToATM(ped, vehicle, atm)
-								Sequence(ped, false, function (cv, lv)
-									print('Arrived at atm')
-									ClearPedTasks()
-									TaskStartScenarioAtPosition(ped, "PROP_HUMAN_PARKING_METER", GetOffsetFromEntityInWorldCoords(atm, 0.0, -1.0, 1.0), GetEntityHeading(atm), 0, true, true)
-									Wait(5000)
+									-- Open doors and grab case
+									ClearPedTasks(ped)
+									ClearPedTasksImmediately(ped)
+									GoToATM(ped, vehicle, atm)
+									Sequence(ped, false, function (cv, lv)
+										print('Arrived at atm')
+										ClearPedTasks()
+										TaskStartScenarioAtPosition(ped, "PROP_HUMAN_PARKING_METER", GetOffsetFromEntityInWorldCoords(atm, 0.0, -1.0, 1.0), GetEntityHeading(atm), 0, true, true)
+										Wait(5000)
 
-									if lv == 3 then
-										GoToBackOfVehicle(ped, vehicle)
-										Sequence(ped, false, function (cv, lv)
-											if lv == 5 then
-												print('Arrived back at back of vehicle')
-												DetachEntity(case, 1, false)
-												AttachEntityToEntity(case, vehicle, 0, 0.0, -2.4589, 1.2195, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, 1)
-												Wait(500)
+										if lv == 3 then
+											GoToBackOfVehicle(ped, vehicle)
+											Sequence(ped, false, function (cv, lv)
+												if lv == 5 then
+													print('Arrived back at back of vehicle')
+													DetachEntity(case, 1, false)
+													AttachEntityToEntity(case, vehicle, 0, 0.0, -2.4589, 1.2195, 0.0, 0.0, 0.0, 0, 0, 0, 0, 2, 1)
+													Wait(500)
 
-												SetVehicleDoorShut(vehicle, 2, 0, 0)
-												SetVehicleDoorShut(vehicle, 3, 0, 0)
-												-- Enter vehicle
-												Wait(1000)
+													SetVehicleDoorShut(vehicle, 2, 0, 0)
+													SetVehicleDoorShut(vehicle, 3, 0, 0)
+													-- Enter vehicle
+													Wait(1000)
 
-												ClearPedTasks(ped)
-												TaskEnterVehicle(ped, vehicle, -1, -1, 1.0, 1, 0)
-											end
-										end)
-									end
-								end)
-							end
-						end)
-					end
-				else
-					if arrived then
-						arrived = false
+													ClearPedTasks(ped)
+													TaskEnterVehicle(ped, vehicle, -1, -1, 1.0, 1, 0)
+												end
+											end)
+										end
+									end)
+								end
+							end)
+						end
+					else
+						if arrived then
+							arrived = false
+						end
 					end
 				end
 			end
 		end
-	end
-)
+	)
+end
 
 TriggerEvent(
 	"glue:GetExports",
